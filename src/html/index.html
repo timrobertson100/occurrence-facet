@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'/>
+    <title>Occurrence search</title>
+    <style>
+        .search {
+            margin: 0px 0 20px 0;
+        }
+        h5.panel-title {
+            font-size: 14px;
+        }
+
+        .search {
+            margin-top: 10px;
+        }
+
+        .filter .panel-group p,  .filter .panel-group .badge {
+            font-size: 12px;
+        }
+
+        .jslider {
+            margin-bottom: 20px;
+        }
+
+        .list-group-item.borderless {
+            border: none;
+            padding: 5px 15px 5px 15px;
+        }
+
+        .panel .close {
+          line-height: 0.7;
+        }
+
+
+    </style>
+
+    <!-- TODO: explore why this woin't come in with require() -->
+    <link rel="stylesheet" type="text/css" href="angular-awesome-slider.min.css">
+</head>
+<body>
+<div class="container" id="main" ng-app="search" ng-controller="SearchController as searchCtlr">
+
+    <div class="page-header">
+        <h1>Occurrence search</h1>
+        <p class="lead">A test interface that calls SOLR directly to evaluate facet performance.</p>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-3 filter">
+
+            <h4>Filter results</h4>
+
+            <div class="input-group search">
+                <input type="text" class="form-control" placeholder="Full text search...">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button">Search</button>
+                </span>
+            </div>
+
+            <h5>Latitude</h5>
+            <input  ng-model="searchCtlr.filter.latitude.value" type="text" id="latitude" slider options="searchCtlr.filter.latitude" />
+
+            <h5>Longitude</h5>
+            <input ng-model="searchCtlr.filter.longitude.value" type="text" id="latitude" slider options="searchCtlr.filter.longitude" />
+
+            <div class="panel-group" id="facets" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default" ng-show="searchCtlr.filter.basisOfRecord!==undefined">
+                    <div class="panel-heading" role="tab">
+                        <button ng-click="searchCtlr.filter.basisOfRecord=undefined;searchCtlr.search()" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h5 class="panel-title">Basis of record: <small class="text-lowercase">
+                            {{searchCtlr.format(searchCtlr.filter.basisOfRecord)}}</small>
+                        </h5>
+                    </div>
+                </div>
+                <div class="panel panel-default" ng-show="searchCtlr.filter.basisOfRecord===undefined">
+                    <div class="panel-heading" role="tab" id="headingBasisOfRecord">
+                        <h5 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#basisOfRecord" aria-expanded="false" aria-controls="basisOfRecord">
+                                Basis of record
+                            </a>
+                        </h5>
+                    </div>
+                    <div id="basisOfRecord" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingBasisOfRecord">
+                        <p class="list-group-item borderless" ng-repeat="facet in searchCtlr.response.facets.basisOfRecord.buckets">
+                            <span class="badge">{{facet.count}}</span>
+                            <a href ng-click="searchCtlr.filter.basisOfRecord=facet.val;searchCtlr.search()" class="text-lowercase">{{searchCtlr.format(facet.val)}}</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="panel panel-default" ng-show="searchCtlr.filter.country!==undefined">
+                    <div class="panel-heading" role="tab">
+                        <button ng-click="searchCtlr.filter.country=undefined;searchCtlr.search()" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h5 class="panel-title">Country: <small class="text-uppercase">
+                            {{searchCtlr.filter.country}}</small>
+                        </h5>
+
+                    </div>
+                </div>
+                <div class="panel panel-default" ng-show="searchCtlr.filter.country===undefined">
+                    <div class="panel-heading" role="tab" id="headingCountry">
+                        <h5 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#country" aria-expanded="false" aria-controls="country">
+                                Country
+                            </a>
+                        </h5>
+                    </div>
+                    <div id="country" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingCountry">
+                        <p class="list-group-item borderless" ng-repeat="facet in searchCtlr.response.facets.country.buckets">
+                            <span class="badge">{{facet.count}}</span>
+                            <a href ng-click="searchCtlr.filter.country=facet.val;searchCtlr.search()">{{facet.val}}</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-xs-9">
+            <h4>{{searchCtlr.response.response.numFound | number}} results</h4>
+
+            <ul class="nav nav-tabs">
+                <li class="active" data-toggle="tab" href="#table"><a href="#">Table</a></li>
+                <li><a data-toggle="tab" href="#chart">Charts</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="table" class="tab-pane in active">
+
+                    <table class="table table-hover table-condensed">
+                        <thead>
+                        <th>Scientific name</th>
+                        <th>Catalog Number</th>
+                        <th>latitude</th>
+                        <th>longitude</th>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="occurrence in searchCtlr.response.response.docs">
+                            <td><a href="http://www.gbif.org/occurrence/{{occurrence.key}}" target="_blank">{{occurrence.detail.scientificName}}</a></td>
+                            <td>{{occurrence.detail.catalogNumber}}</td>
+                            <td>{{occurrence.detail.decimalLatitude}}</td>
+                            <td>{{occurrence.detail.decimalLongitude}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <p class="pull-right table-control">
+                        Show <select>
+                        <option>5</option>
+                        <option>20</option>
+                    </select> entries
+
+                    </p>
+
+
+                </div>
+                <div id="chart" class="tab-pane">
+                    <h3>Menu 1</h3>
+                    <p>Some content in menu 1.</p>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+</body>
+<script src="js/main.bundle.js" type="text/javascript"></script>
+</html>
