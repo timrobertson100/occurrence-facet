@@ -10,10 +10,14 @@ var nodes = angular.module('search', ['angularAwesomeSlider']);
 nodes.controller('SearchController', ['$http', function ($http) {
     var self = this;
 
-    //var searchURL = "http://uatsolr1-vh.gbif.org:8983/solr/dev_occurrence/select?q=*:*&rows=15&start=0&wt=json" +
-    var searchURL = "http://uatsolr1-vh.gbif.org:8983/solr/uat_occurrence/select?q=*:*&rows=15&start=0&wt=json" +
+    var baseURL = 'http://uatsolr1-vh.gbif.org:8983/solr/uat_occurrence/select';
+    var searchURL = baseURL + '?rows=15&start=0&wt=json' +
         "&json.facet=" + encodeURI("{basisOfRecord:{type:terms,field:basis_of_record}}") +
         "&json.facet=" + encodeURI("{country:{type:terms, field:country}}");
+    var chartURL = baseURL + '?rows=0&wt=json' +
+        "&json.facet=" + encodeURI("{year:{type:terms,field:year,limit:1000,sort:{index:desc}}}");
+    var speciesURL = baseURL + '?rows=0&wt=json' +
+        "&json.facet=" + encodeURI("{scientific_name:{type:terms,field:scientific_name,limit:25,sort:{index:asc}}}");
 
     //var occurrenceURL = "http://api.gbif-dev.org/v1/occurrence/";
     var occurrenceURL = "http://api.gbif-uat.org/v1/occurrence/";
@@ -22,24 +26,18 @@ nodes.controller('SearchController', ['$http', function ($http) {
     self.searchLock = true;
     self.response = {};
 
+    self.chartResponse = {};
+    self.speciesResponse = {};
+
+
     // Call SOLR
     self.search = function () {
         self.searchLock = true;
-
-        // build the search URL
-        var lng = self.filter.longitude.value.split(";");
-        var lat = self.filter.latitude.value.split(";");
-        var bor = self.filter.basisOfRecord === undefined ? '' : '&fq=basis_of_record:' + self.filter.basisOfRecord;
-        var country = self.filter.country === undefined ? '' : '&fq=country:' + self.filter.country;
-        var fulltext = self.filter.fulltext === undefined ? '' : '&fq=full_text:' + self.filter.fulltext + '*';
-        var query =
-              '&fq=latitude:[' + lat[0] + ' TO '  + lat[1]+ ']'
-            + '&fq=longitude:[' + lng[0] + ' TO ' + lng[1]+ ']'
-            + country + bor + fulltext;
-        console.log(query);
+        var q = self.buildParams();
+        console.log(q);
         $http(
             {method: 'JSONP',
-                url: searchURL + query,
+                url: searchURL + q,
                 params: {'json.wrf': 'JSON_CALLBACK'}
             })
             .success(function (response) {
@@ -57,6 +55,58 @@ nodes.controller('SearchController', ['$http', function ($http) {
             }).error(function () {
                 console.log('Search failed!');
             });
+       self.charts();
+       self.species();
+    }
+
+    // build the search URL
+    self.buildParams = function() {
+        var lng = self.filter.longitude.value.split(";");
+        var lat = self.filter.latitude.value.split(";");
+        var bor = self.filter.basisOfRecord === undefined ? '' : '&fq=basis_of_record:' + self.filter.basisOfRecord;
+        var country = self.filter.country === undefined ? '' : '&fq=country:' + self.filter.country;
+        var fulltext = self.filter.fulltext === undefined ? '&q=*:*' : '&defType=dismax&qf=full_text&qs=2&q=' + self.filter.fulltext;
+        return '&fq=latitude:[' + lat[0] + ' TO '  + lat[1]+ ']'
+                + '&fq=longitude:[' + lng[0] + ' TO ' + lng[1]+ ']'
+                + country + bor + fulltext;
+
+
+    }
+
+    // calls SOLR for the information for the charts
+    self.charts = function () {
+        var q = self.buildParams();
+        $http(
+            {method: 'JSONP',
+                url: chartURL + q,
+                params: {'json.wrf': 'JSON_CALLBACK'}
+            })
+            .success(function (response) {
+                self.chartResponse = response;
+
+
+            }).error(function () {
+                console.log('Chart search failed!');
+            });
+
+    }
+
+    // calls SOLR for the information for the species
+    self.species = function () {
+        var q = self.buildParams();
+        $http(
+            {method: 'JSONP',
+                url: speciesURL + q,
+                params: {'json.wrf': 'JSON_CALLBACK'}
+            })
+            .success(function (response) {
+                self.speciesResponse = response;
+
+
+            }).error(function () {
+                console.log('Chart search failed!');
+            });
+
     }
 
     // common styling for the range sliders

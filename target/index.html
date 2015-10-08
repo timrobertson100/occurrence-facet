@@ -32,11 +32,19 @@
           line-height: 0.7;
         }
 
+        #chart {
+            height: 400px;
+            width: 800px;
+        }
+
 
     </style>
 
     <!-- TODO: explore why this woin't come in with require() -->
     <link rel="stylesheet" type="text/css" href="angular-awesome-slider.min.css">
+
+
+
 </head>
 <body>
 <div class="container" id="main" ng-app="search" ng-controller="SearchController as searchCtlr">
@@ -45,6 +53,7 @@
         <h1>Occurrence search</h1>
         <p class="lead">A test interface that calls SOLR directly to evaluate facet performance.</p>
     </div>
+
 
 
     <div class="row">
@@ -126,6 +135,7 @@
             <ul class="nav nav-tabs">
                 <li class="active" data-toggle="tab" href="#table"><a href="#">Table</a></li>
                 <li><a data-toggle="tab" href="#chart">Charts</a></li>
+                <li><a data-toggle="tab" href="#species">Species</a></li>
             </ul>
 
             <div class="tab-content">
@@ -150,8 +160,26 @@
 
                 </div>
                 <div id="chart" class="tab-pane">
-                    <h3>Menu 1</h3>
-                    <p>Some content in menu 1.</p>
+                    <h3>Years</h3>
+                    <p><This would be a chart, not a table but this shows the performance of the facet</p>
+
+                    <table class="table table-condensed">
+                        <tr ng-repeat="year in searchCtlr.chartResponse.facets.year.buckets">
+                            <td>{{year.val}}</td>
+                            <td>{{year.count}}</td>
+                            </li>
+                    </table>
+                </div>
+                <div id="species" class="tab-pane">
+                    <h3>Species</h3>
+                    <p>Shows the scientific names in the search results (another facet request to SOLR)</p>
+
+                    <table class="table table-condensed">
+                        <tr ng-repeat="species in searchCtlr.speciesResponse.facets.scientific_name.buckets">
+                            <td>{{year.val}}</td>
+                            <td>{{year.count}}</td>
+                            </li>
+                    </table>
                 </div>
             </div>
 
