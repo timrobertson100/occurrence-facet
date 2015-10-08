@@ -175,11 +175,11 @@
                     <p>Shows the scientific names in the search results (another facet request to SOLR)</p>
 
                     <table class="table table-condensed">
-                        <tr ng-repeat="species in searchCtlr.speciesResponse.facets.scientific_name.buckets">
-                            <td>{{year.val}}</td>
-                            <td>{{year.count}}</td>
-                            </li>
+                        <tr ng-repeat="species in searchCtlr.speciesNames">
+                            <td>{{species.val}}</td>
+                            <td>{{species.count}}</td>
                     </table>
+                    <button type="button" class="btn btn-primary" ng-click="searchCtlr.species()">Load more...</button>
                 </div>
             </div>
 

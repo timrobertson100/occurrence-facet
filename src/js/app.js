@@ -10,29 +10,36 @@ var nodes = angular.module('search', ['angularAwesomeSlider']);
 nodes.controller('SearchController', ['$http', function ($http) {
     var self = this;
 
-    var baseURL = 'http://uatsolr1-vh.gbif.org:8983/solr/uat_occurrence/select';
+    var occurrenceURL = "http://api.gbif-dev.org/v1/occurrence/";
+    //var occurrenceURL = "http://api.gbif-uat.org/v1/occurrence/";
+    var baseURL = 'http://uatsolr1-vh.gbif.org:8983/solr/dev_occurrence/select';
+    //var baseURL = 'http://uatsolr1-vh.gbif.org:8983/solr/uat_occurrence/select';
+
     var searchURL = baseURL + '?rows=15&start=0&wt=json' +
         "&json.facet=" + encodeURI("{basisOfRecord:{type:terms,field:basis_of_record}}") +
         "&json.facet=" + encodeURI("{country:{type:terms, field:country}}");
     var chartURL = baseURL + '?rows=0&wt=json' +
         "&json.facet=" + encodeURI("{year:{type:terms,field:year,limit:1000,sort:{index:desc}}}");
-    var speciesURL = baseURL + '?rows=0&wt=json' +
-        "&json.facet=" + encodeURI("{scientific_name:{type:terms,field:scientific_name,limit:25,sort:{index:asc}}}");
+    var speciesURL = baseURL + '?rows=0&wt=json';
+    var speciesOffset=0;  // for paging
 
-    //var occurrenceURL = "http://api.gbif-dev.org/v1/occurrence/";
-    var occurrenceURL = "http://api.gbif-uat.org/v1/occurrence/";
 
     // the SOLR response
     self.searchLock = true;
     self.response = {};
 
     self.chartResponse = {};
-    self.speciesResponse = {};
+    self.speciesNames = [{val:'test', count:1}];
 
 
     // Call SOLR
     self.search = function () {
         self.searchLock = true;
+
+        // reset the species facet
+        self.speciesNames.length=0;
+        speciesOffset = 0;
+
         var q = self.buildParams();
         console.log(q);
         $http(
@@ -94,13 +101,21 @@ nodes.controller('SearchController', ['$http', function ($http) {
     // calls SOLR for the information for the species
     self.species = function () {
         var q = self.buildParams();
+
+        q = q + "&json.facet=" + encodeURI("{scientific_name:{type:terms,field:scientific_name,limit:15," +
+            "sort:{index:asc}, offset:" + speciesOffset + "}}");
         $http(
             {method: 'JSONP',
                 url: speciesURL + q,
                 params: {'json.wrf': 'JSON_CALLBACK'}
             })
             .success(function (response) {
-                self.speciesResponse = response;
+
+                console.log(response.facets.scientific_name.buckets);
+                self.speciesNames.push.apply(self.speciesNames, response.facets.scientific_name.buckets);
+
+            speciesOffset += response.facets.scientific_name.buckets.length;
+            console.log("Species offset set to " + speciesOffset);
 
 
             }).error(function () {
