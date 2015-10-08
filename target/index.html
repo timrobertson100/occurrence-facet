@@ -134,8 +134,10 @@
 
             <ul class="nav nav-tabs">
                 <li class="active" data-toggle="tab" href="#table"><a href="#">Table</a></li>
+                <li><a data-toggle="tab" href="#map">Map</a></li>
                 <li><a data-toggle="tab" href="#chart">Charts</a></li>
                 <li><a data-toggle="tab" href="#species">Species</a></li>
+                <li><a data-toggle="tab" href="#dataset">Datasets</a></li>
             </ul>
 
             <div class="tab-content">
@@ -159,17 +161,6 @@
                     </table>
 
                 </div>
-                <div id="chart" class="tab-pane">
-                    <h3>Years</h3>
-                    <p><This would be a chart, not a table but this shows the performance of the facet</p>
-
-                    <table class="table table-condensed">
-                        <tr ng-repeat="year in searchCtlr.chartResponse.facets.year.buckets">
-                            <td>{{year.val}}</td>
-                            <td>{{year.count}}</td>
-                            </li>
-                    </table>
-                </div>
                 <div id="species" class="tab-pane">
                     <h3>Species</h3>
                     <p>Shows the scientific names in the search results (another facet request to SOLR)</p>
@@ -180,6 +171,28 @@
                             <td>{{species.count}}</td>
                     </table>
                     <button type="button" class="btn btn-primary" ng-click="searchCtlr.species()">Load more...</button>
+                </div>
+                <div id="map" class="tab-pane">
+                    <h3>Map</h3>
+                    <p>This would be a map, showing 1 degree grids (or finer) views of the data</p>
+                </div>
+                <div id="chart" class="tab-pane">
+                    <h3>Years</h3>
+                    <p>This would be a chart, not a table but this shows the performance of the facet</p>
+
+                    <table class="table table-condensed">
+                        <tr ng-repeat="year in searchCtlr.chartResponse.facets.year.buckets">
+                            <td>{{year.val}}</td>
+                            <td>{{year.count}}</td>
+                            </li>
+                    </table>
+                </div>
+                <div id="dataset" class="tab-pane">
+                    <h3>Datasets</h3>
+                    <p>This would show the datasets that publish the data, preferably grouped by their publishing
+                        institution.</p>
+                    <p>Nested facets of SOLR 5.x should support this grouping.</p>
+
                 </div>
             </div>
 

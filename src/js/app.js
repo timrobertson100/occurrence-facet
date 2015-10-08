@@ -102,7 +102,7 @@ nodes.controller('SearchController', ['$http', function ($http) {
     self.species = function () {
         var q = self.buildParams();
 
-        q = q + "&json.facet=" + encodeURI("{scientific_name:{type:terms,field:scientific_name,limit:15," +
+        q = q + "&json.facet=" + encodeURI("{scientific_name:{type:terms,field:scientific_name,limit:10," +
             "sort:{index:asc}, offset:" + speciesOffset + "}}");
         $http(
             {method: 'JSONP',
