@@ -25,16 +25,17 @@ nodes.controller('SearchController', ['$http', function ($http) {
     // Call SOLR
     self.search = function () {
         self.searchLock = true;
-        
+
         // build the search URL
         var lng = self.filter.longitude.value.split(";");
         var lat = self.filter.latitude.value.split(";");
         var bor = self.filter.basisOfRecord === undefined ? '' : '&fq=basis_of_record:' + self.filter.basisOfRecord;
         var country = self.filter.country === undefined ? '' : '&fq=country:' + self.filter.country;
+        var fulltext = self.filter.fulltext === undefined ? '' : '&fq=full_text:' + self.filter.fulltext + '*';
         var query =
               '&fq=latitude:[' + lat[0] + ' TO '  + lat[1]+ ']'
             + '&fq=longitude:[' + lng[0] + ' TO ' + lng[1]+ ']'
-            + country + bor;
+            + country + bor + fulltext;
         console.log(query);
         $http(
             {method: 'JSONP',

@@ -51,13 +51,15 @@
         <div class="col-xs-3 filter">
 
             <h4>Filter results</h4>
+            <form ng-submit="searchCtlr.search()">
 
             <div class="input-group search">
-                <input type="text" class="form-control" placeholder="Full text search...">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button">Search</button>
-                </span>
+                  <input type="text" class="form-control" ng-model="searchCtlr.filter.fulltext" placeholder="Full text search...">
+                  <span class="input-group-btn">
+                      <button class="btn btn-default" type="submit">Search</button>
+                  </span>
             </div>
+            </form>
 
             <h5>Latitude</h5>
             <input  ng-model="searchCtlr.filter.latitude.value" type="text" id="latitude" slider options="searchCtlr.filter.latitude" />
@@ -145,14 +147,6 @@
                         </tr>
                         </tbody>
                     </table>
-                    <p class="pull-right table-control">
-                        Show <select>
-                        <option>5</option>
-                        <option>20</option>
-                    </select> entries
-
-                    </p>
-
 
                 </div>
                 <div id="chart" class="tab-pane">
