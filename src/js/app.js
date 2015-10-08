@@ -10,18 +10,22 @@ var nodes = angular.module('search', ['angularAwesomeSlider']);
 nodes.controller('SearchController', ['$http', function ($http) {
     var self = this;
 
-    var searchURL = "http://uatsolr1-vh.gbif.org:8983/solr/dev_occurrence/select?q=*:*&rows=15&start=0&wt=json" +
-    //var searchURL = "http://uatsolr1-vh.gbif.org:8983/solr/uat_occurrence/select?q=*:*&rows=15&start=0&wt=json" +
+    //var searchURL = "http://uatsolr1-vh.gbif.org:8983/solr/dev_occurrence/select?q=*:*&rows=15&start=0&wt=json" +
+    var searchURL = "http://uatsolr1-vh.gbif.org:8983/solr/uat_occurrence/select?q=*:*&rows=15&start=0&wt=json" +
         "&json.facet=" + encodeURI("{basisOfRecord:{type:terms,field:basis_of_record}}") +
         "&json.facet=" + encodeURI("{country:{type:terms, field:country}}");
 
-    var occurrenceURL = "http://api.gbif-dev.org/v1/occurrence/";
+    //var occurrenceURL = "http://api.gbif-dev.org/v1/occurrence/";
+    var occurrenceURL = "http://api.gbif-uat.org/v1/occurrence/";
 
     // the SOLR response
+    self.searchLock = true;
     self.response = {};
 
     // Call SOLR
     self.search = function () {
+        self.searchLock = true;
+        
         // build the search URL
         var lng = self.filter.longitude.value.split(";");
         var lat = self.filter.latitude.value.split(";");
@@ -39,6 +43,7 @@ nodes.controller('SearchController', ['$http', function ($http) {
             })
             .success(function (response) {
                 self.response = response;
+                self.searchLock = false;
 
                 // load each GBIF count
                 angular.forEach(response.response.docs, function (doc) {
@@ -90,7 +95,7 @@ nodes.controller('SearchController', ['$http', function ($http) {
     }
 
     self.format = function (source) {
-        return source == '' ? "<value missing>" : source.replace("_", " ");
+        return source == '' || source === undefined ? "<value missing>" : source.replace("_", " ");
     }
 
 
