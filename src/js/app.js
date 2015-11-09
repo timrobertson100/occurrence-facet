@@ -11,9 +11,9 @@ nodes.controller('SearchController', ['$http', function ($http) {
     var self = this;
 
     var occurrenceURL = "http://api.gbif-dev.org/v1/occurrence/";
-    //var occurrenceURL = "http://api.gbif-uat.org/v1/occurrence/";
-    var baseURL = 'http://uatsolr1-vh.gbif.org:8983/solr/dev_occurrence/select';
-    //var baseURL = 'http://uatsolr1-vh.gbif.org:8983/solr/uat_occurrence/select';
+    var occurrenceURL = "http://api.gbif-uat.org/v1/occurrence/";
+    //var baseURL = 'http://uatsolr1-vh.gbif.org:8983/solr/dev_occurrence/select';
+    var baseURL = 'http://uatsolr1-vh.gbif.org:8983/solr/uat_occurrence/select';
 
     var searchURL = baseURL + '?rows=15&start=0&wt=json' +
         "&json.facet=" + encodeURI("{basisOfRecord:{type:terms,field:basis_of_record}}") +
